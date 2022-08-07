@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
-import * as lambda from '@aws-cdk/aws-lambda';
+import * as cdk from 'aws-cdk-lib';
 import { LambdaStack } from "../lib/lambda-stack";
 import { InfrastructureStack } from "../lib/infrastructure-stack";
 import { CodePipelineStack } from "../lib/codepipeline-stack";
@@ -10,32 +9,21 @@ import { CodePipelineStack } from "../lib/codepipeline-stack";
 const app = new cdk.App();
 
 /*
- * These are local development stacks,
- * that can be used by developers to test their changes before pushing them.
- * We assume these will be deployed to some test account.
+ * These can be deployed locally using 'cdk deploy' or through CodePipeline.
  */
-const testLambdaStack = new LambdaStack(app, 'TestLambdaStack');
-new InfrastructureStack(app, 'TestInfraStack', {
-  function: testLambdaStack.function,
+const lambdaStack = new LambdaStack(app, 'LambdaStack', {
+  folderName: 'lambda-code'
 });
-
-/*
- * These are the "production" application stacks.
- * We assume these will only by deployed through CodePipeline.
- */
-// we need a CfnParametersCode,
-// to fill with the results of building the Lambda code in the Pipeline
-const cfnParametersCode = lambda.Code.fromCfnParameters();
-const prodLambdaStack = new LambdaStack(app, 'ProdLambdaStack', {
-  lambdaCode: cfnParametersCode,
-});
-new InfrastructureStack(app, 'ProdInfraStack', {
-  function: prodLambdaStack.function,
+const infraStack = new InfrastructureStack(app, 'InfraStack', {
+  function: lambdaStack.function,
 });
 
 /*
  * This is the production CodePipeline Stack.
  */
-new CodePipelineStack(app, 'ProdCodePipelineStack', {
-  lambdaCode: cfnParametersCode,
+new CodePipelineStack(app, 'CodePipelineStack', {
+  stacksToDeploy: [
+    lambdaStack,
+    infraStack
+  ],
 });
