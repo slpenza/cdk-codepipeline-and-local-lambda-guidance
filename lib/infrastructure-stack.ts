@@ -1,7 +1,7 @@
-import * as cdk from '@aws-cdk/core';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as sns from '@aws-cdk/aws-sns';
-import * as sns_subs from '@aws-cdk/aws-sns-subscriptions';
+import * as cdk from 'aws-cdk-lib';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as sns_subs from 'aws-cdk-lib/aws-sns-subscriptions';
 
 export interface InfrastructureStackProps extends cdk.StackProps {
   readonly function: lambda.IFunction;
@@ -13,7 +13,7 @@ export interface InfrastructureStackProps extends cdk.StackProps {
  * but could be other things as well.
  */
 export class InfrastructureStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: InfrastructureStackProps) {
+  constructor(scope: cdk.App, id: string, props: InfrastructureStackProps) {
     super(scope, id, props);
 
     const topic = new sns.Topic(this, 'Topic');
